@@ -1,0 +1,68 @@
+name: ofertas-cl
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # tiendas cada hora (UTC; Chile UTC-4/-3)
+    - cron: "47 */3 * * *" # vuelos cada 3h
+  workflow_dispatch:
+
+concurrency:
+  group: ofertas
+  cancel-in-progress: false
+
+jobs:
+  tiendas:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 * * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Restore DB
+        uses: actions/cache@v4
+        with:
+          path: data/ofertas.db
+          key: ofertas-db-${{ github.run_id }}
+          restore-keys: ofertas-db-
+
+      - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
+
+      - name: Scrapear tiendas
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python run.py --no-flights
+
+  vuelos:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '47 */3 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Restore DB
+        uses: actions/cache@v4
+        with:
+          path: data/ofertas.db
+          key: ofertas-db-${{ github.run_id }}
+          restore-keys: ofertas-db-
+
+      - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
+
+      - name: Consultar vuelos
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python run.py --flights-only

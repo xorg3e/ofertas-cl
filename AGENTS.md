@@ -44,9 +44,9 @@ Vigilancia de precios: tiendas Chile (Ripley, Falabella, Hites, Paris) + vuelos 
 - URLs de búsqueda Ripley `/s/list/<kw>` casi siempre 404; solo `/s/list/bateria-portatil` funciona verificado. Preferir categorías reales (ej. `/dormitorio/camas`, `/belleza/perfumes`, `/tecno/audio-y-musica/audifonos`, `/accesorios-y-complementos/relojes/relojeria-mujer`, `/marca/head/bolsos-y-maletas`, `/deporte-y-aventura/electromovilidad`, `/jugueteria-y-ninos/.../drones-y-juguetes-a-control`).
 - Falabella: preferir `/category/cat*/Slug` (estables); `verify_urls.py` espera selector de producto en Falabella (no 2.5s fijo). 66/66 URLs OK verificadas 24-sep-2026.
 
-## Pendiente (Fase 5)
+## Pendiente (Fase 5 ✓)
 
-- [ ] Workflow `.github/workflows/ofertas.yml`
+- [x] Workflow `.github/workflows/ofertas.yml` (tiendas c/1h `17 * * * *`, vuelos c/3h `47 */3 * * *`, DB vía actions/cache con restore-keys `ofertas-db-`; secrets `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` en el repo)
 
 ## Telegram (Fase 4 ✓)
 
