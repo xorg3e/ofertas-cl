@@ -93,8 +93,6 @@ flights:
   routes:
     - { origin: SCL, destination: GRU, dates: ["2027-04-28", "2027-04-29"] }
     - { origin: GRU, destination: SCL, dates: ["2027-05-03"] }
-    - { origin: SCL, destination: GIG }
-    - { origin: GIG, destination: SCL }
   days_ahead_min: 7
   days_ahead_max: 60
 
