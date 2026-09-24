@@ -1,0 +1,102 @@
+# Umbrales de alerta
+thresholds:
+  product_drop_pct: 15
+  flight_drop_pct: 20
+  flight_percentile: 10
+
+# Rubros del usuario: camas, celulares, notebooks, drones, ropa, maletas,
+# perfumes, TV, scooters, powerbank, muebles, iPad, audífonos, relojes,
+# zapatillas, smartwatch, smart TV
+stores:
+  ripley:
+    enabled: true
+    urls:
+      - "https://simple.ripley.cl/tecno/celulares"
+      - "https://simple.ripley.cl/tecno/computacion/notebooks"
+      - "https://simple.ripley.cl/tecno/television/smart-tv"
+      - "https://simple.ripley.cl/tecno/computacion/tablets"
+      - "https://simple.ripley.cl/tecno/smartwatches-y-smartbands"
+      - "https://simple.ripley.cl/tecno/audio-y-musica/audifonos"
+      - "https://simple.ripley.cl/s/list/bateria-portatil"
+      - "https://simple.ripley.cl/zapatos-y-zapatillas/zapatillas/zapatillas-mujer"
+      - "https://simple.ripley.cl/zapatos-y-zapatillas/zapatillas"
+      - "https://simple.ripley.cl/dormitorio/camas"
+      - "https://simple.ripley.cl/dormitorio/colchones"
+      - "https://simple.ripley.cl/dormitorio"
+      - "https://simple.ripley.cl/muebles"
+      - "https://simple.ripley.cl/moda-mujer"
+      - "https://simple.ripley.cl/moda-hombre"
+      - "https://simple.ripley.cl/outlet"
+      - "https://simple.ripley.cl/belleza/perfumes"
+      - "https://simple.ripley.cl/deporte-y-aventura/electromovilidad"
+      - "https://simple.ripley.cl/jugueteria-y-ninos/juguetes-infantiles-exterior/drones-y-juguetes-a-control"
+      - "https://simple.ripley.cl/accesorios-y-complementos/relojes/relojeria-mujer"
+      - "https://simple.ripley.cl/marca/head/bolsos-y-maletas"
+  falabella:
+    enabled: true
+    urls:
+      - "https://www.falabella.com/falabella-cl/category/cat7090034/Tecnologia"
+      - "https://www.falabella.com/falabella-cl/category/cat70057/Notebooks"
+      - "https://www.falabella.com/falabella-cl/category/cat7230007/Tablets"
+      - "https://www.falabella.com/falabella-cl/category/cat7230062/Drones-y-Accesorios"
+      - "https://www.falabella.com/falabella-cl/category/cat7190148/Smart-TV"
+      - "https://www.falabella.com/falabella-cl/category/cat1640002/Audifonos"
+      - "https://www.falabella.com/falabella-cl/category/cat4290063/SmartWatch"
+      - "https://www.falabella.com/falabella-cl/category/cat70014/Accesorios-Celulares"
+      - "https://www.falabella.com/falabella-cl/category/cat16400010/Telefonia"
+      - "https://www.falabella.com/falabella-cl/category/cat1640009/Zapatos"
+      - "https://www.falabella.com/falabella-cl/page/electronica"
+      - "https://www.falabella.com/falabella-cl/page/sneaker-corner"
+      - "https://www.falabella.com/falabella-cl/page/moda-f"
+      - "https://www.falabella.com/falabella-cl/page/moda-hombre"
+      - "https://www.falabella.com/falabella-cl/page/zapatos"
+      - "https://www.falabella.com/falabella-cl/page/todo-hogar"
+      - "https://www.falabella.com/falabella-cl/shop/set-de-perfumes"
+      - "https://www.falabella.com/falabella-cl/page/electro-f"
+  hites:
+    enabled: true
+    urls:
+      - "https://www.hites.com/tecnologia/computacion/notebook/"
+      - "https://www.hites.com/tecnologia/computacion/tablets/"
+      - "https://www.hites.com/celulares/smartphones/"
+      - "https://www.hites.com/tecnologia/tv-video/televisores-smart-tv/"
+      - "https://www.hites.com/tecnologia/audio/audifonos/"
+      - "https://www.hites.com/tecnologia/fotografia/drones/"
+      - "https://www.hites.com/electro-hogar/"
+      - "https://www.hites.com/ofertas/"
+  paris:
+    enabled: true
+    urls:
+      - "https://www.paris.cl/outlet/outlet-tecno/"
+      - "https://www.paris.cl/outlet/outlet-electro/outlet-televisores/"
+      - "https://www.paris.cl/listas/drone-mavic"
+      - "https://www.paris.cl/outlet/outlet-tecno/outlet-celulares/"
+      - "https://www.paris.cl/outlet/outlet-tecno/outlet-computadores/"
+      - "https://www.paris.cl/outlet/outlet-tecno/outlet-ipads-y-tablets/"
+      - "https://www.paris.cl/outlet/outlet-tecno/outlet-smartwatch/"
+      - "https://www.paris.cl/outlet/outlet-dormitorio/outlet-camas-y-colchones/"
+      - "https://www.paris.cl/outlet/outlet-muebles/"
+      - "https://www.paris.cl/outlet/outlet-deco/outlet-maletas/"
+      - "https://www.paris.cl/outlet/outlet-belleza/outlet-perfumes/"
+      - "https://www.paris.cl/outlet/outlet-zapatos-y-zapatillas/"
+      - "https://www.paris.cl/tecnologia/gamers/notebooks/"
+      - "https://www.paris.cl/electro/"
+      - "https://www.paris.cl/mujer/moda/"
+      - "https://www.paris.cl/cyber/"
+      - "https://www.paris.cl/dormitorio/colchones/"
+      - "https://www.paris.cl/belleza/perfumes/"
+      - "https://www.paris.cl/muebles/"
+
+flights:
+  enabled: true
+  currency: CLP
+  routes:
+    - { origin: SCL, destination: GIG }
+    - { origin: SCL, destination: GRU }
+    - { origin: GIG, destination: SCL }
+    - { origin: GRU, destination: SCL }
+  days_ahead_min: 7
+  days_ahead_max: 60
+
+storage:
+  path: "data/ofertas.db"
