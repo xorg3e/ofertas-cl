@@ -5,14 +5,37 @@ on:
     - cron: "17 * * * *"   # tiendas cada hora (UTC; Chile UTC-4/-3)
     - cron: "47 */3 * * *" # vuelos cada 3h
   workflow_dispatch:
+    inputs:
+      probe:
+        description: "Probar bypass de bloqueo Ripley/Paris"
+        type: boolean
+        default: false
 
 concurrency:
   group: ofertas
   cancel-in-progress: false
 
 jobs:
+  probe:
+    if: github.event_name == 'workflow_dispatch' && inputs.probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
+
+      - name: Sondeo de bloqueo
+        run: python probe_block.py
+
   tiendas:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 * * * *'
+    if: (github.event_name == 'workflow_dispatch' && !inputs.probe) || github.event.schedule == '17 * * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -40,7 +63,7 @@ jobs:
         run: python run.py --no-flights
 
   vuelos:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '47 */3 * * *'
+    if: (github.event_name == 'workflow_dispatch' && !inputs.probe) || github.event.schedule == '47 */3 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
