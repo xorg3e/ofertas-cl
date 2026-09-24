@@ -8,7 +8,10 @@ PRICE_RE = re.compile(r"(\d{1,3}(?:\.\d{3})+)\s*CLP")
 NON_BREAKING = "\xa0"
 
 
-def _dates_for(cfg: dict) -> list[str]:
+def _dates_for(cfg: dict, route: dict) -> list[str]:
+    fixed = route.get("dates")
+    if fixed:
+        return sorted(set(fixed))
     lo = int(cfg.get("days_ahead_min", 7))
     hi = int(cfg.get("days_ahead_max", 60))
     offsets = sorted({lo, (lo + hi) // 2, hi})
@@ -50,13 +53,12 @@ def search_all(cfg: dict) -> list[dict]:
     """Scrapea Google Flights (ida, 1 adulto, CLP) para las rutas configuradas."""
     if not cfg.get("enabled"):
         return []
-    dates = _dates_for(cfg)
     results: list[dict] = []
     session, browser, context = launch()
     page = context.new_page()
     try:
         for route in cfg.get("routes", []):
-            for dep in dates:
+            for dep in _dates_for(cfg, route):
                 page.goto(
                     _url(route["origin"], route["destination"], dep),
                     wait_until="domcontentloaded",
