@@ -103,13 +103,22 @@ def scrape(store_config: dict) -> list[dict]:
             if i:
                 time.sleep(0.6)
             try:
-                page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                resp = page.goto(url, wait_until="domcontentloaded", timeout=45000)
                 page.wait_for_timeout(2500)
                 page.mouse.wheel(0, 2500)
                 page.wait_for_timeout(900)
-                for p in _from_links(page):
+                items = _from_links(page)
+                if not items:
+                    print(
+                        f"  [debug paris] 0 productos status="
+                        f"{resp.status if resp else '?'} title="
+                        f"{page.title()[:80]!r} {url}",
+                        flush=True,
+                    )
+                for p in items:
                     found[p["product_id"]] = p
-            except Exception:
+            except Exception as exc:
+                print(f"  [debug paris] {type(exc).__name__} {url}", flush=True)
                 continue
     finally:
         context.close()
