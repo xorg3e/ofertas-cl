@@ -97,5 +97,11 @@ flights:
   days_ahead_min: 7
   days_ahead_max: 60
 
+# Ofertas error fare de Secret Flying (scrapeo simple, sin navegador)
+deals:
+  enabled: true
+  url: "https://www.secretflying.com/south-america-flight-deals/"
+  keywords: ["santiago", "chile", "brazil", "brasil", "sao paulo", "rio de janeiro", "guarulhos"]
+
 storage:
   path: "data/ofertas.db"

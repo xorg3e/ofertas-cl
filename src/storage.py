@@ -32,6 +32,11 @@ CREATE TABLE IF NOT EXISTS flight_history (
 );
 CREATE INDEX IF NOT EXISTS idx_flight_lookup
     ON flight_history (origin, destination, departure_date, ts DESC);
+CREATE TABLE IF NOT EXISTS deals_seen (
+    url TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    ts INTEGER NOT NULL
+);
 """
 
 
@@ -117,3 +122,24 @@ def flight_history(conn: sqlite3.Connection) -> list[tuple]:
            FROM flight_history"""
     ).fetchall()
     return [(r[0], r[1], r[2], r[3], r[4]) for r in rows]
+
+
+def new_deals(conn: sqlite3.Connection, deals: list[dict]) -> list[dict]:
+    """Inserta deals vistos; devuelve solo los nuevos. Primera corrida: ninguno nuevo."""
+    first = not conn.execute("SELECT 1 FROM deals_seen LIMIT 1").fetchone()
+    now = int(time.time())
+    fresh: list[dict] = []
+    for d in deals:
+        row = conn.execute(
+            "SELECT 1 FROM deals_seen WHERE url=?", (d["url"],)
+        ).fetchone()
+        if row:
+            continue
+        conn.execute(
+            "INSERT OR IGNORE INTO deals_seen (url, title, ts) VALUES (?, ?, ?)",
+            (d["url"], d["title"], now),
+        )
+        if not first:
+            fresh.append(d)
+    conn.commit()
+    return fresh

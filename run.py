@@ -5,7 +5,7 @@ import sys
 import yaml
 from dotenv import load_dotenv
 
-from src import flights, report, storage
+from src import deals, flights, report, storage
 from src.scrapers import falabella, hites, paris, ripley
 
 SCRAPERS = {"ripley": ripley, "falabella": falabella, "hites": hites, "paris": paris}
@@ -33,6 +33,11 @@ def main() -> int:
         action="store_true",
         help="omite vuelos aunque estén habilitados en config",
     )
+    parser.add_argument(
+        "--no-deals",
+        action="store_true",
+        help="omite Secret Flying aunque esté habilitado en config",
+    )
     args = parser.parse_args()
 
     load_dotenv()
@@ -46,9 +51,11 @@ def main() -> int:
     total_products = 0
     total_drops = 0
     total_flight_alerts = 0
+    total_new_deals = 0
     errors = []
     product_drop_msgs: list[str] = []
     flight_alert_msg: str | None = None
+    deal_msgs: list[str] = []
 
     run_flights = (
         (config.get("flights") or {}).get("enabled")
@@ -121,10 +128,30 @@ def main() -> int:
             errors.append(f"flights: {exc}")
             print(f"[ERROR] flights: {exc}", file=sys.stderr)
 
+    run_deals = (
+        (config.get("deals") or {}).get("enabled")
+        and not args.flights_only
+        and not args.no_deals
+        and not args.store
+    )
+    if run_deals:
+        try:
+            found = deals.fetch_deals(config.get("deals") or {})
+            fresh = storage.new_deals(conn, found) if conn is not None else []
+            total_new_deals = len(fresh)
+            print(f"[OK] deals: {len(found)} ofertas en keywords, {total_new_deals} nuevas")
+            for d in fresh:
+                print(f"  🔥 {d['title'][:80]}")
+            if fresh:
+                deal_msgs.append(report.format_deals(fresh))
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"deals: {exc}")
+            print(f"[ERROR] deals: {exc}", file=sys.stderr)
+
     if conn:
         conn.close()
 
-    msgs = product_drop_msgs + ([flight_alert_msg] if flight_alert_msg else [])
+    msgs = product_drop_msgs + ([flight_alert_msg] if flight_alert_msg else []) + deal_msgs
     if msgs and not args.dry_run:
         try:
             ok = report.send("\n\n".join(msgs))
@@ -136,7 +163,8 @@ def main() -> int:
 
     print(
         f"\nTotal: {total_products} productos, {total_drops} bajadas, "
-        f"{total_flight_alerts} alertas vuelo, {len(errors)} errores"
+        f"{total_flight_alerts} alertas vuelo, {total_new_deals} deals nuevos, "
+        f"{len(errors)} errores"
     )
     return 1 if errors and total_products == 0 and not args.flights_only else 0
 

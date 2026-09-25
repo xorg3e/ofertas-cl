@@ -38,3 +38,10 @@ def format_flight_alerts(alerts: list[dict]) -> str:
             f'  {a.get("url", "")}'
         )
     return "\n".join(lines)
+
+
+def format_deals(deals: list[dict]) -> str:
+    lines = [f"<b>🔥 Secret Flying</b> — {len(deals)} oferta(s) nueva(s)"]
+    for d in deals:
+        lines.append(f'  {d["title"]}\n  {d["url"]}')
+    return "\n".join(lines)
