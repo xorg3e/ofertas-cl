@@ -31,6 +31,17 @@ jobs:
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps chromium
 
+      - name: Túnel WireGuard a casa
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          if [ -z "$WG_CONF" ]; then echo "WG_CONF no definido - sin túnel"; exit 0; fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq wireguard
+          umask 077
+          printf '%s\n' "$WG_CONF" > /tmp/wg0.conf
+          sudo wg-quick up /tmp/wg0.conf
+          echo "IP saliente: $(curl -s --max-time 20 https://api.ipify.org || echo 'SIN CONEXION')"
+
       - name: Sondeo de bloqueo
         run: python probe_block.py
 
@@ -55,6 +66,17 @@ jobs:
 
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps chromium
+
+      - name: Túnel WireGuard a casa
+        env:
+          WG_CONF: ${{ secrets.WG_CONF }}
+        run: |
+          if [ -z "$WG_CONF" ]; then echo "WG_CONF no definido - sin túnel"; exit 0; fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq wireguard
+          umask 077
+          printf '%s\n' "$WG_CONF" > /tmp/wg0.conf
+          sudo wg-quick up /tmp/wg0.conf
+          echo "IP saliente: $(curl -s --max-time 20 https://api.ipify.org || echo 'SIN CONEXION')"
 
       - name: Scrapear tiendas
         env:
