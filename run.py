@@ -99,6 +99,8 @@ def main() -> int:
                 history,
                 threshold_pct=float(th.get("flight_drop_pct", 20)),
                 percentile=int(th.get("flight_percentile", 10)),
+                price_min=th.get("flight_price_min"),
+                price_max=th.get("flight_price_max"),
             )
             total_flight_alerts = len(falerts)
             # resumen: mejor precio por ruta×fecha

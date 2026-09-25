@@ -108,8 +108,10 @@ def detect_flight_errors(
     history: list[tuple],  # (origin, dest, departure_date, price, ts)
     threshold_pct: float,
     percentile: int,
+    price_min: float | None = None,
+    price_max: float | None = None,
 ) -> list[dict]:
-    """Alerta si el mejor precio actual < percentil histórico o cayó > umbral vs 24h."""
+    """Alerta si el precio actual está en el objetivo, < percentil histórico o cayó > umbral vs 24h."""
     cutoff = time.time() - 86400
     hist_prices: dict[tuple, list[float]] = {}
     recent_prices: dict[tuple, list[float]] = {}
@@ -122,13 +124,19 @@ def detect_flight_errors(
     alerts = []
     for key, cur in _best_per_key(current).items():
         reason = None
+        if price_max is not None and cur["price"] <= price_max:
+            if price_min is not None and cur["price"] < price_min:
+                reason = f"precio excelente ${cur['price']:,.0f} (< objetivo ${price_min:,.0f})"
+            else:
+                reason = f"en rango objetivo ${cur['price']:,.0f} (≤${price_max:,.0f})"
         hist = hist_prices.get(key) or []
         if len(hist) >= 8:
             ordered = sorted(hist)
             idx = max(0, min(len(ordered) - 1, round(percentile / 100 * len(ordered)) - 1))
             threshold_price = ordered[idx]
             if cur["price"] <= threshold_price:
-                reason = f"P{percentile} histórico (${threshold_price:,.0f})"
+                piece = f"P{percentile} histórico (${threshold_price:,.0f})"
+                reason = f"{reason} | {piece}" if reason else piece
         recent = recent_prices.get(key) or []
         if recent:
             best_recent = min(recent)

@@ -3,6 +3,8 @@ thresholds:
   product_drop_pct: 15
   flight_drop_pct: 20
   flight_percentile: 10
+  flight_price_max: 270000   # alertar si ida+vuelta baja de este precio (CLP)
+  flight_price_min: 150000   # rango objetivo del usuario: 150k-270k
 
 # Rubros del usuario: camas, celulares, notebooks, drones, ropa, maletas,
 # perfumes, TV, scooters, powerbank, muebles, iPad, audífonos, relojes,
