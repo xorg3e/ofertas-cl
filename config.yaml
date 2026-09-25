@@ -100,7 +100,9 @@ flights:
 # Ofertas error fare de Secret Flying (scrapeo simple, sin navegador)
 deals:
   enabled: true
-  url: "https://www.secretflying.com/south-america-flight-deals/"
+  urls:
+    - "https://www.secretflying.com/south-america-flight-deals/"
+    - "https://www.secretflying.com/error-fares/"
   keywords: ["santiago", "chile", "brazil", "brasil", "sao paulo", "rio de janeiro", "guarulhos"]
 
 storage:

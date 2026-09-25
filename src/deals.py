@@ -20,18 +20,25 @@ def fetch_deals(cfg: dict) -> list[dict]:
     """Lee ofertas de Secret Flying y filtra por keywords del config."""
     if not cfg.get("enabled"):
         return []
-    url = cfg.get("url", "https://www.secretflying.com/south-america-flight-deals/")
+    urls = cfg.get("urls") or [cfg.get(
+        "url", "https://www.secretflying.com/south-america-flight-deals/"
+    )]
     keywords = [_norm(k) for k in cfg.get("keywords", [])]
-    resp = requests.get(url, headers={"User-Agent": UA}, timeout=30)
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "html.parser")
     deals: list[dict] = []
-    for h3 in soup.find_all("h3"):
-        a = h3.find("a", href=True)
-        if not a:
-            continue
-        title = a.get_text(strip=True)
-        href = a["href"]
-        if not keywords or any(k in _norm(title) for k in keywords):
-            deals.append({"title": title, "url": href})
+    seen: set[str] = set()
+    for url in urls:
+        resp = requests.get(url, headers={"User-Agent": UA}, timeout=30)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        for h3 in soup.find_all("h3"):
+            a = h3.find("a", href=True)
+            if not a:
+                continue
+            title = a.get_text(strip=True)
+            href = a["href"]
+            if href in seen:
+                continue
+            if not keywords or any(k in _norm(title) for k in keywords):
+                seen.add(href)
+                deals.append({"title": title, "url": href})
     return deals
