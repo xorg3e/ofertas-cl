@@ -19,8 +19,10 @@ def _dates_for(cfg: dict, route: dict) -> list[str]:
     return [(today + timedelta(days=d)).isoformat() for d in offsets]
 
 
-def _url(origin: str, dest: str, dep: str) -> str:
+def _url(origin: str, dest: str, dep: str, ret: str | None = None) -> str:
     q = f"Flights from {origin} to {dest} on {dep}"
+    if ret:
+        q += f" through {ret}"
     return (
         "https://www.google.com/travel/flights"
         f"?q={q.replace(' ', '+')}&curr=CLP&hl=es&gl=CL"
@@ -58,9 +60,10 @@ def search_all(cfg: dict) -> list[dict]:
     page = context.new_page()
     try:
         for route in cfg.get("routes", []):
+            ret = route.get("return_date")
             for dep in _dates_for(cfg, route):
                 page.goto(
-                    _url(route["origin"], route["destination"], dep),
+                    _url(route["origin"], route["destination"], dep, ret),
                     wait_until="domcontentloaded",
                     timeout=60000,
                 )
