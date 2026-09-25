@@ -34,6 +34,7 @@ def format_flight_alerts(alerts: list[dict]) -> str:
         carrier = f" ({a['carrier']})" if a.get("carrier") else ""
         lines.append(
             f'  {a["origin"]}→{a["destination"]} {a["departure_date"]}\n'
-            f'  ${a["price"]:,.0f}{carrier} — {a["reason"]}'
+            f'  ${a["price"]:,.0f}{carrier} — {a["reason"]}\n'
+            f'  {a.get("url", "")}'
         )
     return "\n".join(lines)

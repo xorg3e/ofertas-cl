@@ -62,8 +62,8 @@ def search_all(cfg: dict) -> list[dict]:
         for route in cfg.get("routes", []):
             ret = route.get("return_date")
             for dep in _dates_for(cfg, route):
-                page.goto(
-                    _url(route["origin"], route["destination"], dep, ret),
+                search_url = _url(route["origin"], route["destination"], dep, ret)
+                page.goto(search_url,
                     wait_until="domcontentloaded",
                     timeout=60000,
                 )
@@ -85,6 +85,7 @@ def search_all(cfg: dict) -> list[dict]:
                             "price": p,
                             "carrier": carrier,
                             "stops": 0,
+                            "url": search_url,
                         }
                     )
     finally:
