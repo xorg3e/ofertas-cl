@@ -37,6 +37,11 @@ CREATE TABLE IF NOT EXISTS deals_seen (
     title TEXT NOT NULL,
     ts INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS flight_alerts_seen (
+    key TEXT PRIMARY KEY,
+    price REAL NOT NULL,
+    ts INTEGER NOT NULL
+);
 """
 
 
@@ -141,5 +146,28 @@ def new_deals(conn: sqlite3.Connection, deals: list[dict]) -> list[dict]:
         )
         if not first:
             fresh.append(d)
+    conn.commit()
+    return fresh
+
+
+def filter_new_flight_alerts(
+    conn: sqlite3.Connection, alerts: list[dict]
+) -> list[dict]:
+    """Suprime alertas de vuelo repetidas: solo avisa si el precio bajó vs la última alerta de esa ruta."""
+    now = int(time.time())
+    fresh: list[dict] = []
+    for a in alerts:
+        key = f'{a["origin"]}->{a["destination"]}|{a["departure_date"]}'
+        row = conn.execute(
+            "SELECT price FROM flight_alerts_seen WHERE key=?", (key,)
+        ).fetchone()
+        if row is not None and a["price"] >= row[0]:
+            continue
+        conn.execute(
+            """INSERT INTO flight_alerts_seen (key, price, ts) VALUES (?, ?, ?)
+               ON CONFLICT(key) DO UPDATE SET price=excluded.price, ts=excluded.ts""",
+            (key, a["price"], now),
+        )
+        fresh.append(a)
     conn.commit()
     return fresh

@@ -135,7 +135,7 @@ def detect_flight_errors(
             ordered = sorted(hist)
             idx = max(0, min(len(ordered) - 1, round(percentile / 100 * len(ordered)) - 1))
             threshold_price = ordered[idx]
-            if cur["price"] <= threshold_price:
+            if cur["price"] < threshold_price:
                 piece = f"P{percentile} histórico (${threshold_price:,.0f})"
                 reason = f"{reason} | {piece}" if reason else piece
         recent = recent_prices.get(key) or []

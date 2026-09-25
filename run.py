@@ -109,6 +109,8 @@ def main() -> int:
                 price_min=th.get("flight_price_min"),
                 price_max=th.get("flight_price_max"),
             )
+            if conn is not None:
+                falerts = storage.filter_new_flight_alerts(conn, falerts)
             total_flight_alerts = len(falerts)
             # resumen: mejor precio por ruta×fecha
             best: dict[tuple, dict] = {}
