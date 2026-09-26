@@ -85,7 +85,7 @@ def scrape(store_config: dict) -> list[dict]:
     try:
         for i, url in enumerate(store_config.get("urls", [])):
             if i:
-                time.sleep(0.6)
+                time.sleep(2)
             try:
                 resp = page.goto(url, wait_until="domcontentloaded", timeout=45000)
                 page.wait_for_timeout(2200)
