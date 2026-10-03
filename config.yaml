@@ -12,6 +12,8 @@ thresholds:
 stores:
   ripley:
     enabled: true
+    split_groups: 2        # alterna 2 grupos por hora (WAF rate limit por IP)
+    retry_wait: 60         # reintenta URLs 429 tras esperar
     urls:
       - "https://simple.ripley.cl/tecno/celulares"
       - "https://simple.ripley.cl/tecno/computacion/notebooks"

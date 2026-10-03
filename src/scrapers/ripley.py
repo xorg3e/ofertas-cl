@@ -79,31 +79,51 @@ def _from_links(page) -> list[dict]:
 def scrape(store_config: dict) -> list[dict]:
     import time
 
+    urls = list(store_config.get("urls", []))
+    groups = int(store_config.get("split_groups") or 0)
+    if groups > 1:
+        urls = urls[int(time.time() // 3600) % groups :: groups]
+        print(f"  [ripley] grupo {int(time.time() // 3600) % groups + 1}/{groups}: {len(urls)} URLs", flush=True)
+
     session, browser, context = launch()
     page = context.new_page()
     found: dict[str, dict] = {}
     try:
-        for i, url in enumerate(store_config.get("urls", [])):
-            if i:
-                time.sleep(2)
-            try:
-                resp = page.goto(url, wait_until="domcontentloaded", timeout=45000)
-                page.wait_for_timeout(2200)
-                page.mouse.wheel(0, 2500)
-                page.wait_for_timeout(900)
-                items = _from_links(page)
-                if not items:
-                    print(
-                        f"  [debug ripley] 0 productos status="
-                        f"{resp.status if resp else '?'} title="
-                        f"{page.title()[:80]!r} {url}",
-                        flush=True,
-                    )
-                for p in items:
-                    found[p["product_id"]] = p
-            except Exception as exc:
-                print(f"  [debug ripley] {type(exc).__name__} {url}", flush=True)
-                continue
+        pending = urls
+        for attempt in range(2):
+            if not pending:
+                break
+            if attempt:
+                wait = int(store_config.get("retry_wait", 60))
+                print(f"  [ripley] reintentando {len(pending)} URL(s) tras {wait}s", flush=True)
+                time.sleep(wait)
+            failed: list[str] = []
+            for i, url in enumerate(pending):
+                if i:
+                    time.sleep(2)
+                try:
+                    resp = page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                    page.wait_for_timeout(2200)
+                    page.mouse.wheel(0, 2500)
+                    page.wait_for_timeout(900)
+                    status = resp.status if resp else "?"
+                    items = [] if status == 429 else _from_links(page)
+                    if not items:
+                        print(
+                            f"  [debug ripley] 0 productos status="
+                            f"{status} title="
+                            f"{page.title()[:80]!r} {url}",
+                            flush=True,
+                        )
+                    if status == 429:
+                        failed.append(url)
+                    for p in items:
+                        found[p["product_id"]] = p
+                except Exception as exc:
+                    print(f"  [debug ripley] {type(exc).__name__} {url}", flush=True)
+                    failed.append(url)
+                    continue
+            pending = failed
     finally:
         context.close()
         browser.close()
